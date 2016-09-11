@@ -130,7 +130,7 @@ PUBLIC int get_ticks()
 void TestA()
 {
 	int fd;
-	int i, n;
+	int i, n, offs;
 
 	char filename[MAX_FILENAME_LEN+1] = "blah";
 	const char bufw[] = "abcde";
@@ -147,7 +147,7 @@ void TestA()
 	/* write */
 	n = write(fd, bufw, strlen(bufw));
 	assert(n == strlen(bufw));
-
+    
 	/* close */
 	close(fd);
 
@@ -161,6 +161,11 @@ void TestA()
 	assert(n == rd_bytes);
 	bufr[n] = 0;
 	printl("%d bytes read: %s\n", n, bufr);
+        /* lseek */
+        offs = lseek(fd,10,SEEK_SET);
+        assert(fd!=-1);
+        assert(offs == -1);
+        printl("shift %d ",offs);
 
 	/* close */
 	close(fd);
