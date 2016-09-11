@@ -108,6 +108,8 @@
 #define ANY		(NR_TASKS + NR_PROCS + 10)
 #define NO_TASK		(NR_TASKS + NR_PROCS + 20)
 
+#define	MAX_TICKS	0x7FFFABCD
+
 /* system call */
 #define NR_SYS_CALL	3
 
@@ -132,10 +134,13 @@ enum msgtype {
 	HARD_INT = 1,
 
 	/* SYS task */
-	GET_TICKS,
+	GET_TICKS, GET_PID,
 
 	/* FS */
 	OPEN, CLOSE, READ, WRITE, LSEEK, STAT, UNLINK,
+
+	/* FS & TTY */
+	SUSPEND_PROC, RESUME_PROC,
 
 	/* TTY, SYS, FS, MM, etc */
 	SYSCALL_RET,
@@ -145,7 +150,10 @@ enum msgtype {
 	DEV_CLOSE,
 	DEV_READ,
 	DEV_WRITE,
-	DEV_IOCTL
+	DEV_IOCTL,
+
+	/* for debug */
+	DISK_LOG
 };
 
 /* macros for messages */
@@ -162,10 +170,9 @@ enum msgtype {
 #define	OFFSET		u.m3.m3i2
 #define	WHENCE		u.m3.m3i3
 
-/* #define	PID		u.m3.m3i2 */
+#define	PID		u.m3.m3i2
 /* #define	STATUS		u.m3.m3i1 */
 #define	RETVAL		u.m3.m3i1
-/* #define	STATUS		u.m3.m3i1 */
 
 
 

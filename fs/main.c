@@ -42,28 +42,29 @@ PUBLIC void task_fs()
 	while (1) {
 		send_recv(RECEIVE, ANY, &fs_msg);
 
+		int msgtype = fs_msg.type;
 		int src = fs_msg.source;
 		pcaller = &proc_table[src];
 
-		switch (fs_msg.type) {
+		switch (msgtype) {
 		case OPEN:
 			fs_msg.FD = do_open();
 			break;
 		case CLOSE:
 			fs_msg.RETVAL = do_close();
 			break;
-		/* case READ: */
-		/* case WRITE: */
-		/* 	fs_msg.CNT = do_rdwt(); */
-		/* 	break; */
+		case READ:
+		case WRITE:
+			fs_msg.CNT = do_rdwt();
+			break;
+		case UNLINK:
+			fs_msg.RETVAL = do_unlink();
+			break;
+		case RESUME_PROC:
+			src = fs_msg.PROC_NR;
+			break;
 		/* case LSEEK: */
 		/* 	fs_msg.OFFSET = do_lseek(); */
-		/* 	break; */
-		/* case UNLINK: */
-		/* 	fs_msg.RETVAL = do_unlink(); */
-		/* 	break; */
-		/* case RESUME_PROC: */
-		/* 	src = fs_msg.PROC_NR; */
 		/* 	break; */
 		/* case FORK: */
 		/* 	fs_msg.RETVAL = fs_fork(); */
@@ -80,9 +81,44 @@ PUBLIC void task_fs()
 			break;
 		}
 
+#ifdef ENABLE_DISK_LOG
+		char * msg_name[128];
+		msg_name[OPEN]   = "OPEN";
+		msg_name[CLOSE]  = "CLOSE";
+		msg_name[READ]   = "READ";
+		msg_name[WRITE]  = "WRITE";
+		msg_name[LSEEK]  = "LSEEK";
+		msg_name[UNLINK] = "UNLINK";
+		/* msg_name[FORK]   = "FORK"; */
+		/* msg_name[EXIT]   = "EXIT"; */
+		/* msg_name[STAT]   = "STAT"; */
+
+		switch (msgtype) {
+		case CLOSE:
+		case UNLINK:
+			//dump_fd_graph("%s just finished.", msg_name[msgtype]);
+			//panic("");
+		case OPEN:
+		case READ:
+		case WRITE:
+		/* case FORK: */
+		/* case LSEEK: */
+		/* case EXIT: */
+		/* case STAT: */
+			break;
+		case RESUME_PROC:
+		case DISK_LOG:
+			break;
+		default:
+			assert(0);
+		}
+#endif
+
 		/* reply */
-		fs_msg.type = SYSCALL_RET;
-		send_recv(SEND, src, &fs_msg);
+		if (fs_msg.type != SUSPEND_PROC) {
+			fs_msg.type = SYSCALL_RET;
+			send_recv(SEND, src, &fs_msg);
+		}
 	}
 }
 

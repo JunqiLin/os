@@ -224,6 +224,7 @@ struct part_ent {
 
 #define REG_DRV_ADDR	0x3F7		/*	Drive Address			I		*/
 
+#define MAX_IO_BYTES	256	/* how many sectors does one IO can handle */
 
 struct hd_cmd {
 	u8	features;

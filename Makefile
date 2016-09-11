@@ -4,7 +4,7 @@
 
 # Entry point of Orange'S
 # It must have the same value with 'KernelEntryPointPhyAddr' in load.inc!
-ENTRYPOINT	= 0x30400
+ENTRYPOINT	= 0x1000
 
 # Offset of entry point in kernel file
 # It depends on ENTRYPOINT
@@ -31,8 +31,11 @@ OBJS		= kernel/kernel.o lib/syscall.o kernel/start.o kernel/main.o\
 			kernel/systask.o kernel/hd.o\
 			lib/printf.o lib/vsprintf.o\
 			lib/kliba.o lib/klib.o lib/string.o lib/misc.o\
-			lib/open.o lib/close.o\
-			fs/main.o fs/open.o fs/misc.o
+			lib/open.o lib/read.o lib/write.o lib/close.o lib/unlink.o\
+			lib/getpid.o lib/syslog.o\
+			fs/main.o fs/open.o fs/misc.o fs/read_write.o\
+			fs/link.o\
+			fs/disklog.o
 DASMOUTPUT	= kernel.bin.asm
 
 # All Phony Targets
@@ -137,7 +140,22 @@ lib/string.o : lib/string.asm
 lib/open.o: lib/open.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+lib/read.o: lib/read.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/write.o: lib/write.c
+	$(CC) $(CFLAGS) -o $@ $<
+
 lib/close.o: lib/close.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/unlink.o: lib/unlink.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/getpid.o: lib/getpid.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+lib/syslog.o: lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 fs/main.o: fs/main.c
@@ -146,6 +164,12 @@ fs/main.o: fs/main.c
 fs/open.o: fs/open.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-fs/misc.o: fs/misc.c
+fs/read_write.o: fs/read_write.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+fs/link.o: fs/link.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+fs/disklog.o: fs/disklog.c
 	$(CC) $(CFLAGS) -o $@ $<
 

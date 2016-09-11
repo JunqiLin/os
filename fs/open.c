@@ -109,13 +109,11 @@ PUBLIC int do_open()
 
 		if (imode == I_CHAR_SPECIAL) {
 			MESSAGE driver_msg;
-
 			driver_msg.type = DEV_OPEN;
 			int dev = pin->i_start_sect;
 			driver_msg.DEVICE = MINOR(dev);
 			assert(MAJOR(dev) == 4);
 			assert(dd_map[MAJOR(dev)].driver_nr != INVALID_DRIVER);
-
 			send_recv(BOTH,
 				  dd_map[MAJOR(dev)].driver_nr,
 				  &driver_msg);
@@ -147,20 +145,19 @@ PUBLIC int do_open()
  * 
  * @see open()
  * @see do_open()
+ *
+ * @todo return values of routines called, return values of self.
  *****************************************************************************/
 PRIVATE struct inode * create_file(char * path, int flags)
 {
 	char filename[MAX_PATH];
 	struct inode * dir_inode;
-
 	if (strip_path(filename, path, &dir_inode) != 0)
 		return 0;
 
 	int inode_nr = alloc_imap_bit(dir_inode->i_dev);
-
 	int free_sect_nr = alloc_smap_bit(dir_inode->i_dev,
 					  NR_DEFAULT_FILE_SECTS);
-
 	struct inode *newino = new_inode(dir_inode->i_dev, inode_nr,
 					 free_sect_nr);
 
@@ -251,14 +248,11 @@ PRIVATE int alloc_imap_bit(int dev)
 			/* skip `11111111' bytes */
 			if (fsbuf[j] == 0xFF)
 				continue;
-
 			/* skip `1' bits */
 			for (k = 0; ((fsbuf[j] >> k) & 1) != 0; k++) {}
-
 			/* i: sector index; j: byte index; k: bit index */
 			inode_nr = (i * SECTOR_SIZE + j) * 8 + k;
 			fsbuf[j] |= (1 << k);
-
 			/* write the bit to imap */
 			WR_SECT(dev, imap_blk0_nr + i);
 			break;

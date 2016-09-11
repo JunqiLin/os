@@ -61,6 +61,7 @@ PUBLIC void keyboard_read(TTY* p_tty);
 /* tty.c */
 PUBLIC void task_tty();
 PUBLIC void in_process(TTY* p_tty, u32 key);
+PUBLIC void dump_tty_buf();	/* for debug only */
 
 /* systask.c */
 PUBLIC void task_sys();
@@ -78,11 +79,22 @@ PUBLIC struct super_block *	get_super_block(int dev);
 PUBLIC int		do_open();
 PUBLIC int		do_close();
 
+/* fs/read_write.c */
+PUBLIC int		do_rdwt();
+
+/* fs/link.c */
+PUBLIC int		do_unlink();
+
 /* fs/misc.c */
 PUBLIC int		do_stat();
 PUBLIC int		strip_path(char * filename, const char * pathname,
 				   struct inode** ppinode);
 PUBLIC int		search_file(char * path);
+
+/* fs/disklog.c */
+PUBLIC int		do_disklog();
+PUBLIC int		disklog(char * logstr); /* for debug */
+PUBLIC void		dump_fd_graph(const char * fmt, ...);
 
 /* console.c */
 PUBLIC void out_char(CONSOLE* p_con, char ch);
@@ -93,7 +105,7 @@ PUBLIC int  is_current_console(CONSOLE* p_con);
 
 /* printf.c */
 PUBLIC  int     printf(const char *fmt, ...);
-#define	printl	printf
+PUBLIC  int     printl(const char *fmt, ...);
 
 /* vsprintf.c */
 PUBLIC  int     vsprintf(char *buf, const char *fmt, va_list args);

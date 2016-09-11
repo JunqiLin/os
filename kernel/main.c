@@ -72,7 +72,7 @@ PUBLIC int kernel_main()
 		p_proc->regs.esp = (u32)p_task_stack;
 		p_proc->regs.eflags = eflags;
 
-		p_proc->nr_tty		= 0;
+		/* p_proc->nr_tty		= 0; */
 
 		p_proc->p_flags = 0;
 		p_proc->p_msg = 0;
@@ -93,9 +93,9 @@ PUBLIC int kernel_main()
 		selector_ldt += 1 << 3;
 	}
 
-        proc_table[NR_TASKS + 0].nr_tty = 0;
-        proc_table[NR_TASKS + 1].nr_tty = 1;
-        proc_table[NR_TASKS + 2].nr_tty = 1;
+        /* proc_table[NR_TASKS + 0].nr_tty = 0; */
+        /* proc_table[NR_TASKS + 1].nr_tty = 1; */
+        /* proc_table[NR_TASKS + 2].nr_tty = 1; */
 
 	k_reenter = 0;
 	ticks = 0;
@@ -129,9 +129,62 @@ PUBLIC int get_ticks()
  *======================================================================*/
 void TestA()
 {
-	int fd = open("/blah", O_CREAT);
-	printf("fd: %d\n", fd);
+	int fd;
+	int i, n;
+
+	char filename[MAX_FILENAME_LEN+1] = "blah";
+	const char bufw[] = "abcde";
+	const int rd_bytes = 3;
+	char bufr[rd_bytes];
+
+	assert(rd_bytes <= strlen(bufw));
+
+	/* create */
+	fd = open(filename, O_CREAT | O_RDWR);
+	assert(fd != -1);
+	printl("File created: %s (fd %d)\n", filename, fd);
+
+	/* write */
+	n = write(fd, bufw, strlen(bufw));
+	assert(n == strlen(bufw));
+
+	/* close */
 	close(fd);
+
+	/* open */
+	fd = open(filename, O_RDWR);
+	assert(fd != -1);
+	printl("File opened. fd: %d\n", fd);
+
+	/* read */
+	n = read(fd, bufr, rd_bytes);
+	assert(n == rd_bytes);
+	bufr[n] = 0;
+	printl("%d bytes read: %s\n", n, bufr);
+
+	/* close */
+	close(fd);
+
+	char * filenames[] = {"/foo", "/bar", "/baz"};
+
+	/* create files */
+	for (i = 0; i < sizeof(filenames) / sizeof(filenames[0]); i++) {
+		fd = open(filenames[i], O_CREAT | O_RDWR);
+		assert(fd != -1);
+		printl("File created: %s (fd %d)\n", filenames[i], fd);
+		close(fd);
+	}
+
+	char * rfilenames[] = {"/bar", "/foo", "/baz", "/dev_tty0"};
+
+	/* remove files */
+	for (i = 0; i < sizeof(rfilenames) / sizeof(rfilenames[0]); i++) {
+		if (unlink(rfilenames[i]) == 0)
+			printl("File removed: %s\n", rfilenames[i]);
+		else
+			printl("Failed to remove file: %s\n", rfilenames[i]);
+	}
+
 	spin("TestA");
 }
 
@@ -140,10 +193,28 @@ void TestA()
  *======================================================================*/
 void TestB()
 {
-	while(1){
-		printf("B");
-		milli_delay(200);
+	char tty_name[] = "/dev_tty1";
+
+	int fd_stdin  = open(tty_name, O_RDWR);
+	assert(fd_stdin  == 0);
+	int fd_stdout = open(tty_name, O_RDWR);
+	assert(fd_stdout == 1);
+
+	char rdbuf[128];
+
+	while (1) {
+		printf("$ ");
+		int r = read(fd_stdin, rdbuf, 70);
+		rdbuf[r] = 0;
+
+		if (strcmp(rdbuf, "hello") == 0)
+			printf("hello world!\n");
+		else
+			if (rdbuf[0])
+				printf("{%s}\n", rdbuf);
 	}
+
+	assert(0); /* never arrive here */
 }
 
 /*======================================================================*
@@ -151,11 +222,8 @@ void TestB()
  *======================================================================*/
 void TestC()
 {
+	spin("TestC");
 	/* assert(0); */
-	while(1){
-		printf("C");
-		milli_delay(200);
-	}
 }
 
 /*****************************************************************************
