@@ -130,12 +130,13 @@ PUBLIC int get_ticks()
 void TestA()
 {
 	int fd;
-	int i, n, offs;
+	int i, n, offs,tag;
 
 	char filename[MAX_FILENAME_LEN+1] = "blah";
 	const char bufw[] = "abcde";
 	const int rd_bytes = 3;
 	char bufr[rd_bytes];
+       struct stat* inbuf;
 
 	assert(rd_bytes <= strlen(bufw));
 
@@ -166,7 +167,14 @@ void TestA()
         offs = lseek(fd, 0, SEEK_END);
         assert(fd != -1);
         assert(offs != -1);
-        printl("shift %d ",offs);
+        printl("shift %d\n ",offs);
+
+        /*stat*/
+        tag = stat(fd,inbuf);
+        prinfl("%d\n",inbuf->i_mode);
+         prinfl("%d\n",inbuf->i_size);
+prinfl("%d\n",inbuf->i_start_sect);
+prinfl("%d\n",inbuf->i_nr_sects);
 
 	/* close */
 	close(fd);

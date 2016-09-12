@@ -1,7 +1,7 @@
 /*************************************************************************//**
  *****************************************************************************
- * @file   open.c
- * @brief  open()
+ * @file   read_write.c
+ * @brief  
  * @author Forrest Y. Yu
  * @date   2008
  *****************************************************************************
@@ -17,32 +17,29 @@
 #include "tty.h"
 #include "console.h"
 #include "global.h"
+#include "keyboard.h"
 #include "proto.h"
 
+
 /*****************************************************************************
- *                                open
+ *                                do_rdwt
  *****************************************************************************/
 /**
- * open/create a file.
+ * Read/Write file and return byte count read/written.
+ *
+ * Sector map is not needed to update, since the sectors for the file have been
+ * allocated and the bits are set when the file was created.
  * 
- * @param pathname  The full path of the file to be opened/created.
- * @param flags     O_CREAT, O_RDWR, etc.
- * 
- * @return File descriptor if successful, otherwise -1.
+ * @return How many bytes have been read/written.
  *****************************************************************************/
-PUBLIC int open(const char *pathname, int flags)
+PUBLIC int do_stat()
 {
-	MESSAGE msg;
-
-	msg.type	= OPEN;
-
-	msg.PATHNAME	= (void*)pathname;
-	msg.FLAGS	= flags;
-	msg.NAME_LEN	= strlen(pathname);
-
-	send_recv(BOTH, TASK_FS, &msg);
-	assert(msg.type == SYSCALL_RET);
-
-	return msg.FD;
+   stat* buf = (stat*)fs_msg.BUF;
+   int fd = fs_msg.FD;
+   struct inode * pin = pcaller->flip[fd]->fd_inode;
+   buf->i_mode = pin->i_mode;
+   buf->i_size = pin->i_size;
+   buf->i_start_sect = pin->i_start_sect;
+   buf->i_nr_sects = pin->i_nr_sects;
+   return 0;
 }
-

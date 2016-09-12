@@ -127,7 +127,12 @@ struct file_desc {
 	int		fd_pos;		/**< Current position for R/W. */
 	struct inode*	fd_inode;	/**< Ptr to the i-node */
 };
-
+struct stat{
+       int mode;
+       int size;
+       int i_start_sect;
+       int i_nr_sects;
+};
 
 /**
  * Since all invocations of `rw_sector()' in FS look similar (most of the
