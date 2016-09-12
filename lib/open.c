@@ -1,7 +1,7 @@
 /*************************************************************************//**
  *****************************************************************************
- * @file   write.c
- * @brief  write()
+ * @file   open.c
+ * @brief  open()
  * @author Forrest Y. Yu
  * @date   2008
  *****************************************************************************
@@ -20,30 +20,28 @@
 #include "proto.h"
 
 /*****************************************************************************
- *                                write
+ *                                open
  *****************************************************************************/
 /**
- * Write to a file descriptor.
+ * open/create a file.
  * 
- * @param fd     File descriptor.
- * @param buf    Buffer including the bytes to write.
- * @param count  How many bytes to write.
+ * @param pathname  The full path of the file to be opened/created.
+ * @param flags     O_CREAT, O_RDWR, etc.
  * 
- * @return  On success, the number of bytes written are returned.
- *          On error, -1 is returned.
+ * @return File descriptor if successful, otherwise -1.
  *****************************************************************************/
-PUBLIC int write(int fd, const void *buf, int count)
+PUBLIC int open(const char *pathname, int flags)
 {
 	MESSAGE msg;
-	msg.type = WRITE;
-	msg.FD   = fd;
-	msg.BUF  = (void*)buf;
-	msg.CNT  = count;
+
+	msg.type	= OPEN;
+
+	msg.PATHNAME	= (void*)pathname;
+	msg.FLAGS	= flags;
+	msg.NAME_LEN	= strlen(pathname);
 
 	send_recv(BOTH, TASK_FS, &msg);
+	assert(msg.type == SYSCALL_RET);
 
-	return msg.CNT;
+	return msg.FD;
 }
-
-
-

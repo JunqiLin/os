@@ -17,9 +17,9 @@ CC		= gcc
 LD		= ld
 ASMBFLAGS	= -I boot/include/
 ASMKFLAGS	= -I include/ -I include/sys/ -f elf
-CFLAGS		= -I include/ -I include/sys/ -c -fno-builtin -Wall
+CFLAGS		= -I include/ -I include/sys/ -c -fno-stack-protector -fno-builtin -Wall -m32
 #CFLAGS		= -I include/ -c -fno-builtin -fno-stack-protector -fpack-struct -Wall
-LDFLAGS		= -Ttext $(ENTRYPOINT) -Map krnl.map
+LDFLAGS		= -Ttext $(ENTRYPOINT) -Map krnl.map -m elf_i386
 DASMFLAGS	= -D
 
 # This Program
@@ -33,7 +33,9 @@ OBJS		= kernel/kernel.o lib/syscall.o kernel/start.o kernel/main.o\
 			lib/kliba.o lib/klib.o lib/string.o lib/misc.o\
 			lib/open.o lib/read.o lib/write.o lib/close.o lib/unlink.o\
 			lib/getpid.o lib/syslog.o\
+			lib/lseek.o\
 			fs/main.o fs/open.o fs/misc.o fs/read_write.o\
+			fs/dolseek.o\
 			fs/link.o\
 			fs/disklog.o
 DASMOUTPUT	= kernel.bin.asm
@@ -158,6 +160,10 @@ lib/getpid.o: lib/getpid.c
 lib/syslog.o: lib/syslog.c
 	$(CC) $(CFLAGS) -o $@ $<
 
+lib/lseek.o: lib/lseek.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+
 fs/main.o: fs/main.c
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -171,5 +177,8 @@ fs/link.o: fs/link.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 fs/disklog.o: fs/disklog.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+fs/dolseek.o: fs/dolseek.c
 	$(CC) $(CFLAGS) -o $@ $<
 

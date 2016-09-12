@@ -102,7 +102,7 @@ PUBLIC void task_fs()
 		case READ:
 		case WRITE:
 		/* case FORK: */
-		/* case LSEEK: */
+		case LSEEK: 
 		/* case EXIT: */
 		/* case STAT: */
 			break;

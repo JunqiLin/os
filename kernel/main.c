@@ -161,10 +161,11 @@ void TestA()
 	assert(n == rd_bytes);
 	bufr[n] = 0;
 	printl("%d bytes read: %s\n", n, bufr);
-        /* lseek */
-        offs = lseek(fd,10,SEEK_SET);
-        assert(fd!=-1);
-        assert(offs == -1);
+        
+	/* lseek */
+        offs = lseek(fd, 0, SEEK_END);
+        assert(fd != -1);
+        assert(offs != -1);
         printl("shift %d ",offs);
 
 	/* close */

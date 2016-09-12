@@ -26,14 +26,15 @@
 
 PUBLIC int do_lseek()
 {
-       if(off<0){
-           if(whence != SEEK_END) return -1;
-        }
- 
 	int fd = fs_msg.FD;
 	int off = fs_msg.OFFSET;
 	int whence = fs_msg.WHENCE;
 	int pos = pcaller->filp[fd]->fd_pos;
+
+       if(off<0){
+           if(whence != SEEK_END) return -1;
+        }
+ 
 
        if(whence == SEEK_SET)  pos = off;
        else if(whence == SEEK_CUR) pos = pos+off;
